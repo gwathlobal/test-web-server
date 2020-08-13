@@ -1,26 +1,34 @@
-package Main;
+package main;
 
-import Servlets.AllRequestsServlet;
-import Servlets.MirrorServlet;
+import accounts.AccountService;
+import servlets.AllRequestsServlet;
+import servlets.SignInServlet;
+import servlets.SignUpServlet;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-public class Main {
+public class Main  {
+
     public static void main(String[] args) throws Exception {
+
+        AccountService accountService = new AccountService();
+
         AllRequestsServlet allRequestsServlet = new AllRequestsServlet();
-        MirrorServlet mirrorServlet = new MirrorServlet();
+        SignUpServlet signUpServlet = new SignUpServlet(accountService);
+        SignInServlet signInServlet = new SignInServlet(accountService);
 
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.addServlet(new ServletHolder(allRequestsServlet), "/*");
-        context.addServlet(new ServletHolder(mirrorServlet), "/mirror");
+        context.addServlet(new ServletHolder(signUpServlet), "/signup");
+        context.addServlet(new ServletHolder(signInServlet), "/signin");
 
         Server server = new Server(8080);
         server.setHandler(context);
 
         server.start();
         java.util.logging.Logger.getGlobal().info("Server started");
-        //System.out.println("Server started");
         server.join();
     }
+
 }
