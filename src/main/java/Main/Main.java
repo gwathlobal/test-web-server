@@ -1,6 +1,7 @@
 package main;
 
 import accounts.AccountService;
+import dbService.DBService;
 import servlets.AllRequestsServlet;
 import servlets.SignInServlet;
 import servlets.SignUpServlet;
@@ -13,10 +14,12 @@ public class Main  {
     public static void main(String[] args) throws Exception {
 
         AccountService accountService = new AccountService();
+        DBService dbService = new DBService();
+        dbService.printConnectInfo();
 
         AllRequestsServlet allRequestsServlet = new AllRequestsServlet();
-        SignUpServlet signUpServlet = new SignUpServlet(accountService);
-        SignInServlet signInServlet = new SignInServlet(accountService);
+        SignUpServlet signUpServlet = new SignUpServlet(dbService);
+        SignInServlet signInServlet = new SignInServlet(accountService, dbService);
 
         ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
         context.addServlet(new ServletHolder(allRequestsServlet), "/*");

@@ -1,7 +1,9 @@
 package servlets;
 
 import accounts.AccountService;
-import accounts.UserProfile;
+import dataSets.UsersDataSet;
+import dbService.DBException;
+import dbService.DBService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -11,9 +13,11 @@ import java.io.IOException;
 
 public class SignInServlet extends HttpServlet {
     private final AccountService accountService;
+    private final DBService dbService;
 
-    public SignInServlet(AccountService accountService) {
+    public SignInServlet(AccountService accountService, DBService dbService) {
         this.accountService = accountService;
+        this.dbService = dbService;
     }
 
     @Override
@@ -29,7 +33,13 @@ public class SignInServlet extends HttpServlet {
             return;
         }
 
-        UserProfile user = accountService.getUserByLogin(login);
+        UsersDataSet user = null;
+        try {
+            user = dbService.getUserByLogin(login);
+        }
+        catch (DBException e) {
+            e.printStackTrace();
+        }
 
         if (user == null || !password.equals(user.getPassword())) {
             response.getWriter().println("Unauthorized");
@@ -39,6 +49,7 @@ public class SignInServlet extends HttpServlet {
         }
 
         accountService.addSession(request.getSession().getId(), user);
+        //System.out.println(user.toString());
 
         response.getWriter().println(String.format("Authorized: %s", login));
         response.setContentType("text/html;charset=utf-8");

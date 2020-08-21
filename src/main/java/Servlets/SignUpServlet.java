@@ -2,6 +2,9 @@ package servlets;
 
 import accounts.AccountService;
 import accounts.UserProfile;
+import dataSets.UsersDataSet;
+import dbService.DBException;
+import dbService.DBService;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,10 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class SignUpServlet extends HttpServlet {
-    private final AccountService accountService;
+    private final DBService dbService;
 
-    public SignUpServlet(AccountService accountService) {
-        this.accountService = accountService;
+    public SignUpServlet(DBService dbService) {
+        this.dbService = dbService;
     }
 
     @Override
@@ -29,8 +32,14 @@ public class SignUpServlet extends HttpServlet {
             return;
         }
 
-        UserProfile userProfile = new UserProfile(login,password);
-        accountService.addNewUser(userProfile);
+        UsersDataSet user = new UsersDataSet(login, password);
+        try {
+            dbService.addUser(user);
+        }
+        catch (DBException e) {
+            e.printStackTrace();
+        }
+        //System.out.println(user.toString());
 
         response.getWriter().println("Registered");
         response.setContentType("text/html;charset=utf-8");
